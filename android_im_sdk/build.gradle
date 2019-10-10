@@ -1,0 +1,195 @@
+apply plugin: 'com.android.library'
+apply plugin: 'org.greenrobot.greendao'
+//apply plugin: 'com.novoda.bintray-release'
+apply plugin: "guru.stefma.bintrayrelease"
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('config.properties').newDataInputStream())
+String pack = properties.getProperty("pack", "debug")
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        flavorDimensions "versionCode"
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        buildConfigField "String", "Service_Url", properties.getProperty("IM_Service_Url." + pack)
+        buildConfigField "String", "File_Url", properties.getProperty("IM_File_Url." + pack)
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    lintOptions {
+        abortOnError false
+    }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
+//task buildJar(dependsOn: [build], type: Jar) {
+//    println(" #####begin to build jar######")
+//    appendix = "demo"
+//    baseName = "androidJar"
+//    version = "1.0.0"
+//    classifier = "release"
+////后缀名
+//    extension = "jar"
+////最终的 Jar 包名，如果没设置，默认为 [baseName]-[appendix]-[version]-[classifier].[extension]
+//    archiveName = "littlec.jar"
+//
+////需打包的资源所在的路径集
+//    def srcClassDir = [project.buildDir.absolutePath + "/intermediates/classes/release/"];
+////初始化资源路径集
+//    from srcClassDir
+//
+////去除路径集下部分的资源
+////    exclude "org/chaos/demo/jar/MainActivity.class"
+////    exclude "org/chaos/demo/jar/MainActivity/$*.class"
+//    //去掉不需要打包的目录和文件
+//    exclude('test/', 'BuildConfig.class', 'R.class')
+////去掉R$开头的文件
+////    exclude { it.name.startsWith('R$'); }
+//
+////去掉不需要打包的目录和文件
+////    exclude('test/', 'BuildConfig.class', 'R.class', 'androidTest/')
+////    exclude('META-INF/')
+////去掉R$开头的文件
+//    exclude {
+////        it.name.startsWith('R$');
+////        it.name.startsWith('org.apache.thrift');
+////        it.name.startsWith('META-INF');
+//    }
+//    //注: exclude include 支持可变长参数
+//    exclude "css/"
+//
+//}
+//task createJarForNormal(type: Jar) {//包含greendao,gson和okhttp的源代码
+//    baseName = "LittlecSDK2.0.0_for_Android"
+//    println(" #####begin to create jar######")
+//    from {
+//        println(" api path:")
+//        configurations.compile.each { println(it.path) }
+//        println(" \n retain path:")
+//        configurations.retain.each { println(it.path) }
+//        List list = (configurations.compile - configurations.retain).
+//                collect {
+//                    it.isDirectory() ? it : zipTree(it).matching {
+////                        exclude { it.path.contains('META-INF') }
+//                    }
+//                }
+//        List<Object> removeList = new ArrayList<>();
+//        println("\n remove path:");
+//        for (Object object : list) {
+//            if (object.toString().contains("jsr")
+//                    || object.toString().contains("javax.annotation")
+//                    || object.toString().contains("MiPush_SDK_Client")) {
+//                removeList.add(object)
+//                println(object.toString())
+//            }
+//        }
+//        list.removeAll(removeList)
+//        return list;
+//    }
+//    with buildJar
+//}
+//去掉了greendao,gson和okhttp的源代码
+//上层需加入依赖
+// for example：
+//compile 'net.zetetic:android-database-sqlcipher:3.5.7@aar'
+//compile 'org.greenrobot:greendao:3.2.2'
+//compile 'com.google.code.gson:gson:2.7'
+//compile 'com.squareup.okhttp:okhttp:2.5.0'
+//compile 'com.squareup.okio:okio:1.13.0'
+//compile 'log4j:log4j:1.2.17'
+//task createJarForHome(type: Jar) {
+//    baseName = "LittlecSDK2.0.0_android"
+//    println(" #####begin to create jar######")
+//    from {
+//        println(" compile path:")
+//        configurations.compile.each { println(it.path) }
+//        println(" \n retain path:")
+//        configurations.retain.each { println(it.path) }
+//        List list = (configurations.compile - configurations.retain).
+//                collect {
+//                    it.isDirectory() ? it : zipTree(it).matching {
+////                        exclude { it.path.contains('META-INF') }
+//                    }
+//                }
+//        List<Object> removeList = new ArrayList<>();
+//        println("\n remove path:");
+//        for (Object object : list) {
+//            if (object.toString().contains("jsr")
+//                    || object.toString().contains("javax.annotation")
+//                    || object.toString().contains("MiPush_SDK_Client")
+//                    || object.toString().contains("com.squareup.okhttp")
+//                    || object.toString().contains("com.squareup.okio")
+//                    || object.toString().contains("org.greenrobot")
+//                    || object.toString().contains("gson")
+//                    || object.toString().contains("guava")
+//                    || object.toString().contains("log4j")) {
+//                removeList.add(object)
+//                println(object.toString())
+//            }
+//        }
+//        list.removeAll(removeList)
+//        return list;
+//    }
+//    with buildJar
+//}
+configurations {
+    retain
+    compile.extendsFrom retain
+}
+
+dependencies {
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.robolectric:robolectric:3.0'
+
+    retain 'javax.annotation:javax.annotation-api:1.2'
+//    implementation fileTree(include: '*.jar', dir: 'libs')
+    api 'io.grpc:grpc-stub:1.10.0'
+    api 'io.grpc:grpc-okhttp:1.10.0'
+    api 'io.grpc:grpc-protobuf-lite:1.10.0'
+    /********************数据库换成greendao3.+ ******************/
+    api 'org.greenrobot:greendao:3.2.2'
+    /********************数据库加密(业务层自己添加)*****************************/
+//    api 'net.zetetic:android-database-sqlcipher:3.5.7@aar'
+    /********************日志打印到文件******************/
+    api 'log4j:log4j:1.2.17'
+
+}
+greendao {
+    schemaVersion 4
+    daoPackage 'com.littlec.sdk.database.dao'
+    targetGenDir 'src/main/java'
+}
+
+//publish {
+//    userOrg = 'nemo1991'      //bintray注册的用户名
+//    groupId = 'com.fingo.nemo'         //compile引用时的第1部分groupId
+//    artifactId = 'android_im_sdk'     //compile引用时的第2部分项目名
+//    publishVersion = '1.0.0'    //compile引用时的第3部分版本号
+//    desc = 'Im聊天sdk'
+//    website = 'https://github.com/haoyuliu'
+//}
+version = "1.0.0"
+group = "com.fingo.nemo"
+androidArtifact { // 2
+    artifactId = "android_im_sdk"
+}
+publish {
+    userOrg = 'nemo1991'
+    desc = 'Im聊天sdk'
+    website = 'https://github.com/haoyuliu'
+}
